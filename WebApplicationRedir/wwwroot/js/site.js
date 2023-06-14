@@ -3,6 +3,64 @@
 
 // Write your JavaScript code.
 $(document).ready(function () {
+    
+    let myTableColumnDefinitions = [
+        {
+            "targets": 0,
+            "data": "albumId",
+            "sortable": true
+        },
+        {
+            "targets": 1,
+            "data": "id",
+            "sortable": true
+        },
+        {
+            "targets": 2,
+            "data": "title",
+            "sortable": true
+        },
+        {
+            "targets": 3,
+            "data": "url",
+            "sortable": true,
+            "render": function (data, type, row, meta) {
+                return '<a href="#">Details</a>'
+            }
+        },
+        {
+            "targets": 4,
+            "data": "thumbnailUrl",
+            "sortable": true,
+            "render": function (data, type, row, meta) {
+                return '<img src="' + data + '" class="small-pic">'
+            }
+        }
+    ];
+    let myTableOptions = {
+        "paging": true,
+        "processing": true,
+        "scrollY": "350px",
+        "lengthChange": true,
+        "searching": true,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "responsive": true,
+        "serverSide": true,
+        "columnDefs": myTableColumnDefinitions,
+        "ajax": {
+            url: "/Search/Photos",
+            type: "POST",
+            error: function () {
+                //$('#')
+                alert('DEBUG: Error!');
+            }
+        },
+        "createdRow": function (row, data, dataIndex) {
+            console.log(data);
+        }
+    };
     // Search
     $('#btnSearch').unbind('click').bind('click', function (event) {
         event.preventDefault();
@@ -44,4 +102,8 @@ $(document).ready(function () {
         //        alert("finished");
         //    });
     });
+    //
+    // https://jsonplaceholder.typicode.com/photos
+    //myTable.DataTable(myTableOptions);
+    let myTable = $('#myTable').DataTable(myTableOptions);
 });
