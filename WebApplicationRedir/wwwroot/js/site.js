@@ -7,21 +7,26 @@ $(document).ready(function () {
     let myTableColumnDefinitions = [
         {
             "targets": 0,
+            "name": "Album",
             "data": "albumId",
             "sortable": true
         },
         {
             "targets": 1,
+            "name": "ID",
             "data": "id",
             "sortable": true
         },
         {
             "targets": 2,
+            "name": "Title",
             "data": "title",
-            "sortable": true
+            "sortable": true,
+            "searchable": true
         },
         {
             "targets": 3,
+            "name": "URL",
             "data": "url",
             "sortable": true,
             "render": function (data, type, row, meta) {
@@ -30,6 +35,7 @@ $(document).ready(function () {
         },
         {
             "targets": 4,
+            "name": "Thumbnail",
             "data": "thumbnailUrl",
             "sortable": true,
             "render": function (data, type, row, meta) {
@@ -40,7 +46,6 @@ $(document).ready(function () {
     let myTableOptions = {
         "paging": true,
         "processing": true,
-        "scrollY": "350px",
         "lengthChange": true,
         "searching": true,
         "ordering": true,
@@ -52,13 +57,12 @@ $(document).ready(function () {
         "ajax": {
             url: "/Search/Photos",
             type: "POST",
-            error: function () {
-                //$('#')
-                alert('DEBUG: Error!');
+            error: function (e) {
+                console.error('Received: ' + { e });
             }
         },
         "createdRow": function (row, data, dataIndex) {
-            console.log(data);
+            //console.log(data);
         }
     };
     // Search

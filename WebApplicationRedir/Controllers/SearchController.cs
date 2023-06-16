@@ -31,21 +31,44 @@ namespace WebApplicationRedir.Controllers
         [HttpPost]
         public async Task<ActionResult> Photos()
         {
+            // number of times a request has been made?
+            int requestedDraw = Convert.ToInt32(Request.Form["draw"].FirstOrDefault() ?? "0");
+
+            // how many to return
+            int requestedLength = Convert.ToInt32(Request.Form["length"].FirstOrDefault() ?? "0");
+
+            // how many to skip aka where to start
+            int requestedStart = Convert.ToInt32(Request.Form["start"].FirstOrDefault() ?? "0");
+
+            // The search text
+            string requestedSearch = Request.Form["search[value]"].FirstOrDefault() ?? "";
+
+            // Simulate data retrieval
             IEnumerable<PhotoModel> listPhotos = new System.Collections.Generic.List<PhotoModel>();
             using (var reader = System.IO.File.OpenText("photos.json"))
             {
                 var fileText = await reader.ReadToEndAsync();
                 listPhotos = JsonSerializer.Deserialize<IEnumerable<PhotoModel>>(fileText);
-                
-                Int64 TotalCount = listPhotos.Count();
-                DataTableResponse dtResponse = new DataTableResponse();
-                dtResponse.draw = 10;
-                dtResponse.recordsTotal = TotalCount;
-                dtResponse.recordsFiltered = TotalCount;
-                dtResponse.data = listPhotos;
-
-                return Json(dtResponse);
             }
+            // select * from Model
+            IQueryable<PhotoModel> queryPhotos = listPhotos.AsQueryable();
+            // Total de registros antes de filtrar.
+            Int64 TotalCount = listPhotos.Count();
+            // Build query for filtering by searching using the criteria against the concatenation of all fields 
+            queryPhotos = queryPhotos
+                .Where(x => string.Concat(x.AlbumId, x.Id, x.Title, x.Url, x.ThumbnailUrl).Contains(requestedSearch));
+            // Total de registros ya filtrados.
+            int TotalFiltered = queryPhotos.Count(); 
+            // Save the new list to return
+            listPhotos = queryPhotos.Skip(requestedStart).Take(requestedLength).ToList();
+            // Build the response payload
+            DataTableResponse dtResponse = new DataTableResponse();
+            dtResponse.draw = requestedDraw;
+            dtResponse.recordsTotal = TotalCount;
+            dtResponse.recordsFiltered = TotalFiltered;
+            dtResponse.data = listPhotos;
+
+            return Json(dtResponse);
         }
 
         // GET: SearchController/Details/5
